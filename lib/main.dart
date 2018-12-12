@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'auth_item.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:async';
 import 'dart:convert';
+import 'package:qrcode_reader/qrcode_reader.dart';
 
 void main() => runApp(MyApp());
 
@@ -46,28 +50,125 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
   var _2faItems = new List<AuthItem>();
 
   void showAddMenu(){
+    scanQRCode();
+  }
+
+  void refreshList(){
     setState(() {
       _2faItems.forEach((f) => f.generateOutputNumber());
     });
   }
 
-  void refreshList(){
-
+  void scanQRCode(){
+    Future<String> futureString = new QRCodeReader()
+        .setAutoFocusIntervalInMs(200) // default 5000
+        .setForceAutoFocus(true) // default false
+        .setTorchEnabled(true) // default false
+        .setHandlePermissions(true) // default true
+        .setExecuteAfterPermissionGranted(true) // default true
+        .scan();
+    futureString.then((String value){
+      this.saveNewItem(value);
+    }).catchError((_){});
   }
+
 
   @override
   void initState() {
     super.initState();
     var path = "otpauth://totp/Apple:myaccount?secret=syjrir3jeccxlhixfddt5hwhlvuk73qi2yxoiwqoqf4lpig3bnbzf35u&algorithm=SHA256&digits=6&period=30&counter=0";
+    loadData().then((_){});
+  }
+
+  Future<Null> loadData() async{
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File("${directory.path}/data.dat");
+    if(!(await file.exists())){
+      await file.create();
+      return;
+    }
+    final data = await file.readAsString();
+    Map<String, dynamic> decodeData;
+    try{
+      decodeData = json.decode(data);
+    }catch(_){
+    }
+
+    if(decodeData == null){
+      decodeData = Map<String, dynamic>();
+    }
+    List<String> authUris = decodeData["authUris"];
+    if(authUris != null && authUris.isNotEmpty){
+      for(String uriPath in authUris){
+        var item = AuthItem();
+        item.init(uriPath);
+        item.generateOutputNumber();
+        _2faItems.add(item);
+      }
+    }
+  }
+
+  void saveNewItem(String uri){
+
+    doSaveNewItem(uri)
+        .then((item) {
+      if(item != null){
+        item.generateOutputNumber();
+        _2faItems.add(item);
+        refreshList();
+      }
+
+    }).catchError((_){
+
+    });
+
+  }
+
+  Future<AuthItem> doSaveNewItem(String uri) async{
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File("${directory.path}/data.dat");
+
+    if(!(await file.exists())){
+      await file.create();
+    }
+
+    var data = await file.readAsString();
+
+    Map<String, dynamic> decodeData;
+    try{
+      decodeData = json.decode(data);
+    }catch(_){
+    }
+
+    if(decodeData == null){
+      decodeData = Map<String, dynamic>();
+    }
+
+    List<String> authUris = decodeData["authUris"];
+    if (authUris == null){
+      authUris = List<String>();
+    }
+
     var item = AuthItem();
-    item.init(path);
+    item.init(uri);
+
+    if(item.secret == null || item.secret.isEmpty){
+      return null;
+    }
+
     item.generateOutputNumber();
-    _2faItems.add(item);
+
+    authUris.add(uri);
+    decodeData["authUris"] = authUris;
+    data = json.encode(decodeData);
+    file.writeAsString(data);
+
+    return item;
+
   }
 
   @override

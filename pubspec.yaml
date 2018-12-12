@@ -21,6 +21,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   base32: ^1.0.0
   crypto: ^2.0.6
+  path_provider: ^0.4.1
+  qrcode_reader: ^0.4.4
 
 dev_dependencies:
   flutter_test:
