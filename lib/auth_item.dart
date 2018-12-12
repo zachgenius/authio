@@ -107,8 +107,8 @@ class AuthItem {
       return;
     }
     if(type == "TOTP"){
-      var time = DateTime.now().millisecond;
-      time = (((time ~/ 1000).round()) ~/ 30).floor();
+      var time = DateTime.now().millisecondsSinceEpoch;
+      time = (((time ~/ 1000).round()) ~/ period).floor();
       outputNumber = _generateCode(secret, time, digits);
 
     }

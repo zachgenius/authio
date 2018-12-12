@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'auth_item.dart';
-import 'package:base32/base32.dart';
+import 'dart:convert';
 
 void main() => runApp(MyApp());
 
@@ -48,27 +48,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  var _numbers = [
-    200200, 300300, 400400, 500500
-  ];
-
   var _2faItems = new List<AuthItem>();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      for (int i = 0; i < _numbers.length; i++){
-        _numbers[i]++;
-      }
-    });
-  }
-
   void showAddMenu(){
-
+    setState(() {
+      _2faItems.forEach((f) => f.generateOutputNumber());
+    });
   }
 
   void refreshList(){
@@ -76,7 +61,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    var path = "otpauth://totp/Apple:myaccount?secret=syjrir3jeccxlhixfddt5hwhlvuk73qi2yxoiwqoqf4lpig3bnbzf35u&algorithm=SHA256&digits=6&period=30&counter=0";
+    var item = AuthItem();
+    item.init(path);
+    item.generateOutputNumber();
+    _2faItems.add(item);
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -90,13 +86,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.separated(
-        itemCount: 1, //_2faItems.length,
+        itemCount: _2faItems.length, //_2faItems.length,
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (BuildContext context, int index) {
-          var path = "otpauth://hotp/Apple:myaccount?secret=syjrir3jeccxlhixfddt5hwhlvuk73qi2yxoiwqoqf4lpig3bnbzf35u&algorithm=SHA256&digits=6&period=30&counter=0";
-          var item = AuthItem();
-          item.init(path);
-          item.generateOutputNumber();
+          var item = _2faItems[index];
           return ListTile(
             title: Text('output:  ${item.outputNumber}'),
           );
