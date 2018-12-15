@@ -80,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    var path = "otpauth://totp/Apple:myaccount?secret=syjrir3jeccxlhixfddt5hwhlvuk73qi2yxoiwqoqf4lpig3bnbzf35u&algorithm=SHA256&digits=6&period=30&counter=0";
     loadData().then((_){});
   }
 
