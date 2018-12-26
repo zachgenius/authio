@@ -53,6 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   var _2faItems = new List<AuthItem>();
 
+  var _currentProgress = 0.3;
+
+  Timer _countdownTimer;
+
   void showAddMenu(){
     scanQRCode();
   }
@@ -61,6 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _2faItems.forEach((f) => f.generateOutputNumber());
     });
+  }
+
+  void refreshIndicator(){
+
+    var current = DateTime.now().millisecondsSinceEpoch % 30000;
+    var rate = current / 30000.0;
+
+    setState((){
+      _currentProgress = rate;
+    });
+
+    if (rate.floor() == 0){
+      refreshList();
+    }
   }
 
   void scanQRCode(){
@@ -80,7 +98,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    loadData().then((_){});
+    loadData().then((_){
+      refreshList();
+      _countdownTimer = new Timer.periodic(new Duration(milliseconds: 50), (timer){
+        print(timer.tick);
+        refreshIndicator();
+      });
+
+    });
   }
 
   Future<Null> loadData() async{
@@ -100,11 +125,11 @@ class _MyHomePageState extends State<MyHomePage> {
     if(decodeData == null){
       decodeData = Map<String, dynamic>();
     }
-    List<String> authUris = decodeData["authUris"];
+    List<dynamic> authUris = decodeData["authUris"];
     if(authUris != null && authUris.isNotEmpty){
-      for(String uriPath in authUris){
+      for(dynamic uriPath in authUris){
         var item = AuthItem();
-        item.init(uriPath);
+        item.init(uriPath as String);
         item.generateOutputNumber();
         _2faItems.add(item);
       }
@@ -147,9 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
       decodeData = Map<String, dynamic>();
     }
 
-    List<String> authUris = decodeData["authUris"];
+    List<dynamic> authUris = decodeData["authUris"];
     if (authUris == null){
-      authUris = List<String>();
+      authUris = List<dynamic>();
     }
 
     var item = AuthItem();
@@ -185,21 +210,38 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-        itemCount: _2faItems.length, //_2faItems.length,
-        separatorBuilder: (BuildContext context, int index) => Divider(),
-        itemBuilder: (BuildContext context, int index) {
-          var item = _2faItems[index];
-          return ListTile(
-            title: Text('output:  ${item.outputNumber}'),
-          );
-        }
+      body: Column(
+        children: <Widget>[
+          LinearProgressIndicator(
+            value: _currentProgress,
+          ),
+          new Expanded(
+              child: ListView.separated(
+                itemCount: _2faItems.length, //_2faItems.length,
+                separatorBuilder: (BuildContext context, int index) => Divider(),
+                itemBuilder: (BuildContext context, int index) {
+                  var item = _2faItems[index];
+                  return ListTile(
+                    title: Text('${item.outputNumber}'),
+                    subtitle: Text(item.label),
+                    trailing: Text(item.issuer),
+                  );
+                }
+          ))
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showAddMenu,
         tooltip: 'ShowAddMenu',
-        child: Icon(Icons.add),
+        child: Icon(Icons.more_vert),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+    super.dispose();
   }
 }
