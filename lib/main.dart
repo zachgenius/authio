@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'menu_anim_button.dart';
+import 'setting_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +28,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Authio'),
+      initialRoute: "/",
+      routes: {
+        "/" : (context) => MyHomePage(title: 'Authio'),
+        "/settings" : (context) => SettingScreen()
+      },
     );
   }
 }
@@ -92,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void jumpToSettings(){
-
+    Navigator.pushNamed(context, "/settings");
   }
 
   @override
@@ -230,7 +235,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ))
         ],
       ),
-      floatingActionButton: MenuAnimButton(cameraCallback: scanQRCode, settingsCallBack: jumpToSettings,), // This trailing comma makes auto-formatting nicer for build methods.
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: jumpToSettings,
+//        tooltip: "Scan QR Code",
+//        child: Icon(Icons.camera_alt),
+//      )
+      floatingActionButton: MenuAnimButton(cameraCallback: scanQRCode, settingsCallBack: jumpToSettings,),
     );
   }
 
@@ -239,5 +249,28 @@ class _MyHomePageState extends State<MyHomePage> {
     _countdownTimer?.cancel();
     _countdownTimer = null;
     super.dispose();
+  }
+}
+
+class SecondScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Second Screen"),
+      ),
+      body: Center(
+        child: RaisedButton(
+          onPressed: () {
+            // Navigate back to first screen when tapped!
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingScreen()),
+            );
+          },
+          child: Text('Go back!'),
+        ),
+      ),
+    );
   }
 }
