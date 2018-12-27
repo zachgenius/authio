@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:qrcode_reader/qrcode_reader.dart';
+import 'menu_anim_button.dart';
 
 void main() => runApp(MyApp());
 
@@ -57,10 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Timer _countdownTimer;
 
-  void showAddMenu(){
-    scanQRCode();
-  }
-
   void refreshList(){
     setState(() {
       _2faItems.forEach((f) => f.generateOutputNumber());
@@ -94,6 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }).catchError((_){});
   }
 
+  void jumpToSettings(){
+
+  }
 
   @override
   void initState() {
@@ -230,11 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ))
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: showAddMenu,
-        tooltip: 'ShowAddMenu',
-        child: Icon(Icons.more_vert),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: MenuAnimButton(cameraCallback: scanQRCode, settingsCallBack: jumpToSettings,), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
