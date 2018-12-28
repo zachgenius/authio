@@ -200,6 +200,37 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+  Future<Null> saveCurrentItems() async{
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File("${directory.path}/data.dat");
+
+    if(!(await file.exists())){
+      await file.create();
+    }
+
+    var data = await file.readAsString();
+
+    Map<String, dynamic> decodeData;
+    try{
+      decodeData = json.decode(data);
+    }catch(_){
+    }
+
+    if(decodeData == null){
+      decodeData = Map<String, dynamic>();
+    }
+
+    List<String> authUris = new List();
+
+    _2faItems.forEach((f){
+      authUris.add(f.authUrl);
+    });
+
+    decodeData["authUris"] = authUris;
+    data = json.encode(decodeData);
+    file.writeAsString(data);
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -214,9 +245,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.settings), onPressed: jumpToSettings)
-        ],
+//        actions: <Widget>[
+//          IconButton(icon: Icon(Icons.settings), onPressed: jumpToSettings)
+//        ],
       ),
       body: Column(
         children: <Widget>[
@@ -229,10 +260,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 separatorBuilder: (BuildContext context, int index) => Divider(),
                 itemBuilder: (BuildContext context, int index) {
                   var item = _2faItems[index];
-                  return ListTile(
-                    title: Text('${item.outputNumber}'),
-                    subtitle: Text(item.label),
-                    trailing: Text(item.issuer),
+                  return Dismissible(
+                      key: Key(item.secret),
+                      onDismissed: (direction) {
+                        // Remove the item from our data source.
+                        removeItem(index);
+                        // Then show a snackbar!
+                        Scaffold.of(context)
+                            .showSnackBar(SnackBar(content: Text("Deleted")));
+                      },
+                      // Show a red background as the item is swiped away
+                      background: Container(color: Colors.red),
+                      child: ListTile(
+                        title: Text('${item.outputNumber}'),
+                        subtitle: Text(item.label),
+                        trailing: Text(item.issuer),
+                      )
                   );
                 }
           ))
@@ -255,27 +298,12 @@ class _MyHomePageState extends State<MyHomePage> {
     _countdownTimer = null;
     super.dispose();
   }
-}
 
-class SecondScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Second Screen"),
-      ),
-      body: Center(
-        child: RaisedButton(
-          onPressed: () {
-            // Navigate back to first screen when tapped!
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingScreen()),
-            );
-          },
-          child: Text('Go back!'),
-        ),
-      ),
-    );
+  void removeItem(int index){
+    setState(() {
+      _2faItems.removeAt(index);
+    });
+
+    saveCurrentItems().then(null);
   }
 }
