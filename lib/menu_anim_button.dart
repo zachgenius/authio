@@ -41,19 +41,14 @@ class _MenuAnimButtonState extends State<MenuAnimButton> with SingleTickerProvid
   @override
   void initState() {
     _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300))
-          ..addListener((){
-            setState(() {
-
-            });
-        });
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     _animateIcon = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
 
     _buttonColor = ColorTween(begin: Colors.blue, end: Colors.red)
         .animate(CurvedAnimation(
             parent: _animationController,
-            curve: Interval(0.0, 1.0, curve: _curve)));
+            curve: Interval(0.0, 1.0, curve: Curves.linear)));
 
     _translateButton = Tween<double>(
       begin: _fabHeight,
@@ -108,6 +103,7 @@ class _MenuAnimButtonState extends State<MenuAnimButton> with SingleTickerProvid
         toggle()
       ],
     );
+
   }
 
   @override
@@ -117,22 +113,18 @@ class _MenuAnimButtonState extends State<MenuAnimButton> with SingleTickerProvid
   }
 
   Widget camera(){
-    return new Container(
-      child: FloatingActionButton(
-        onPressed: onCamera,
-        tooltip: "Scan QR Code",
-        child: Icon(Icons.camera_alt),
-      ),
+    return FloatingActionButton(
+      onPressed: onCamera,
+      tooltip: "Scan QR Code",
+      child: Icon(Icons.camera_alt),
     );
   }
 
   Widget settings(){
-    return new Container(
-      child: FloatingActionButton(
-        onPressed: onSettings,
-        tooltip: "Settings",
-        child: Icon(Icons.settings),
-      ),
+    return FloatingActionButton(
+      onPressed: onSettings,
+      tooltip: "Settings",
+      child: Icon(Icons.settings),
     );
   }
 

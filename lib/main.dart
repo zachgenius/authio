@@ -214,6 +214,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.settings), onPressed: jumpToSettings)
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -235,12 +238,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ))
         ],
       ),
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: jumpToSettings,
-//        tooltip: "Scan QR Code",
-//        child: Icon(Icons.camera_alt),
-//      )
-      floatingActionButton: MenuAnimButton(cameraCallback: scanQRCode, settingsCallBack: jumpToSettings,),
+      floatingActionButton: FloatingActionButton(
+        onPressed: scanQRCode,
+        tooltip: "Scan QR Code",
+        child: Icon(Icons.camera_alt),
+      )
+
+        //TODO 这里的问题就在于有多个按钮之后, 就无法跳转到下一页, 直接黑屏...
+//      floatingActionButton: MenuAnimButton(cameraCallback: scanQRCode, settingsCallBack: jumpToSettings,),
     );
   }
 
