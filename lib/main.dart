@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'menu_anim_button.dart';
+import 'camera_instruction_screen.dart';
 import 'setting_screen.dart';
 
 void main() => runApp(MyApp());
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/" : (context) => MyHomePage(title: 'Authio'),
-        "/settings" : (context) => SettingScreen()
+        "/settings" : (context) => SettingScreen(),
+        '/camera' : (context) => CameraInstructionScreen(),
       },
     );
   }
@@ -84,15 +86,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void scanQRCode(){
-    Future<String> futureString = new QRCodeReader()
-        .setAutoFocusIntervalInMs(200) // default 5000
-        .setForceAutoFocus(true) // default false
-        .setTorchEnabled(true) // default false
-        .setHandlePermissions(true) // default true
-        .setExecuteAfterPermissionGranted(true) // default true
-        .scan();
-    futureString.then((String value){
-      this.saveNewItem(value);
+    Navigator.pushNamed(context, "/camera")
+        .then((value){
+          this.saveNewItem(value);
     }).catchError((_){});
   }
 
@@ -106,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
     loadData().then((_){
       refreshList();
       _countdownTimer = new Timer.periodic(new Duration(milliseconds: 50), (timer){
-        print(timer.tick);
         refreshIndicator();
       });
 

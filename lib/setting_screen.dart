@@ -21,15 +21,23 @@ class SettingScreen extends StatelessWidget {
                 );
               case 1:
                 return ListTile(
-                  title: Text('Link to Dropbox'),
+                  title: Text('Import from a JSON file'),
                   leading: Icon(Icons.insert_drive_file),
-                  trailing: Switch(value: true, onChanged: linkDropbox),
+                  trailing: Icon(Icons.import_export),
                   onTap: null,
                 );
 
               case 2:
                 return ListTile(
-                  title: Text('Link to Google Drive'),
+                  title: Text('Sync with Dropbox'),
+                  leading: Icon(Icons.insert_drive_file),
+                  trailing: Switch(value: true, onChanged: linkDropbox),
+                  onTap: null,
+                );
+
+              case 3:
+                return ListTile(
+                  title: Text('Sync with Google Drive'),
                   leading: Icon(Icons.insert_drive_file),
                   trailing: CupertinoSwitch(value: false, onChanged: linkGoogleDrive, activeColor: Colors.blue,),
                   onTap: null,
@@ -37,7 +45,7 @@ class SettingScreen extends StatelessWidget {
             }
           },
           separatorBuilder: (BuildContext context, int index) => Divider(),
-          itemCount: 3),
+          itemCount: 4),
     );
   }
 
