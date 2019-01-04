@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
-
+import 'auth_item.dart';
 
 class CameraInstructionScreen extends StatefulWidget{
 
@@ -26,14 +26,15 @@ class _CameraInstructionScreenState extends State<CameraInstructionScreen> {
           ),
 
           Image.asset("assets/qrinstr.png"),
-          MaterialButton(
-            onPressed: scan,
+          Padding(padding: EdgeInsets.only(top: 20)),
+          Builder(builder: (ctx)=>MaterialButton(
+            onPressed: ()=>scan(ctx),
             color: Colors.blue,
             padding: EdgeInsets.only(
-              left: 50,
-              top: 10,
-              right: 50,
-              bottom: 10
+                left: 50,
+                top: 10,
+                right: 50,
+                bottom: 10
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -42,16 +43,17 @@ class _CameraInstructionScreenState extends State<CameraInstructionScreen> {
                   Icons.camera_alt,
                   color: Colors.white,
                 ),
-                Text("  Scan QR Code", style: TextStyle(color: Colors.white, fontSize: 18),)
+                Padding(padding: EdgeInsets.only(left: 10)),
+                Text("Scan QR Code", style: TextStyle(color: Colors.white, fontSize: 18),)
               ],
             ),
-          )
+          ))
         ],
       ),
     );
   }
 
-  void scan(){
+  void scan(BuildContext ctx){
     Future<String> futureString = new QRCodeReader()
         .setAutoFocusIntervalInMs(200) // default 5000
         .setForceAutoFocus(true) // default false
@@ -61,7 +63,15 @@ class _CameraInstructionScreenState extends State<CameraInstructionScreen> {
         .scan();
     futureString.then((String value){
       if (value != null && value != ''){
-        Navigator.pop(context, value);
+        AuthItem item = new AuthItem();
+        item.init(value);
+
+        if (item.authUrl == null){
+          Scaffold.of(ctx).showSnackBar(SnackBar(content: Text("Sorry, the QR code is not supported!")));
+        }
+        else{
+          Navigator.pop(context, value);
+        }
       }
     }).catchError((_){});
   }

@@ -7,8 +7,8 @@ class AuthItem {
 
   String label = "";
   String secret;
-  String type; //TOTP///HOTP
-  String issuer;
+  String type = ''; //TOTP///HOTP
+  String issuer = '';
   String algorithm = "SHA1"; //SHA1, SHA256
   int digits = 6; // 6, 8
   int period = 30; //seconds

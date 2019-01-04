@@ -243,6 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           PopupMenuButton<PopupEnum>(
+            offset: Offset(0, 80),
             icon: Icon(Icons.more_vert),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<PopupEnum>>[
               const PopupMenuItem(
@@ -270,21 +271,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   var item = _2faItems[index];
                   return Dismissible(
-                      key: Key(item.secret),
-                      onDismissed: (direction) {
-                        // Remove the item from our data source.
-                        removeItem(index);
-                        // Then show a snackbar!
-                        Scaffold.of(context)
-                            .showSnackBar(SnackBar(content: Text("Deleted")));
-                      },
-                      // Show a red background as the item is swiped away
-                      background: Container(color: Colors.red),
-                      child: ListTile(
-                        title: Text('${item.outputNumber}'),
-                        subtitle: Text(item.label),
-                        trailing: Text(item.issuer),
-                      )
+                    direction: DismissDirection.endToStart,
+                    key: Key(item.secret),
+                    onDismissed: (direction) {
+                      // Remove the item from our data source.
+                      removeItem(context,index);
+
+                    },
+                    // Show a red background as the item is swiped away
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      color: Colors.red,
+                      child: Icon(Icons.delete, color: Colors.white),
+                      padding: EdgeInsets.only(right: 15),
+
+                    ),
+                    child: ListTile(
+                      title: Text('${item.outputNumber}'),
+                      subtitle: Text(item.label),
+                      trailing: Text(item.issuer),
+                    )
                   );
                 }
           ))
@@ -308,12 +314,47 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void removeItem(int index){
+  void removeItem(BuildContext ctx, int index){
+    var removeItem = _2faItems[index];
     setState(() {
       _2faItems.removeAt(index);
     });
 
-    saveCurrentItems().then(null);
+    showDialog(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (BuildContext bCtx){
+        return AlertDialog(
+          title: Text("Delete this item?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: (){
+                setState(() {
+                  _2faItems.insert(index, removeItem);
+                });
+                Navigator.pop(bCtx);
+              },
+            ),
+            FlatButton(
+              child: Text("Delete"),
+              textColor: Colors.red,
+              onPressed: (){
+                Navigator.pop(bCtx);
+                // Then show a snackbar!
+                Scaffold.of(ctx)
+                    .showSnackBar(SnackBar(content: Text("Deleted")));
+
+                saveCurrentItems();
+              },
+            )
+          ],
+        );
+      }
+    ).then((value){
+
+    });
+
   }
 }
 
