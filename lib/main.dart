@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:qrcode_reader/qrcode_reader.dart';
 import 'menu_anim_button.dart';
 import 'camera_instruction_screen.dart';
 import 'setting_screen.dart';
+import 'about_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
         "/" : (context) => MyHomePage(title: 'Authio'),
         "/settings" : (context) => SettingScreen(),
         '/camera' : (context) => CameraInstructionScreen(),
+        '/about' : (context) => AboutScreen(),
       },
     );
   }
@@ -240,9 +241,22 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
-//        actions: <Widget>[
-//          IconButton(icon: Icon(Icons.settings), onPressed: jumpToSettings)
-//        ],
+        actions: <Widget>[
+          PopupMenuButton<PopupEnum>(
+            icon: Icon(Icons.more_vert),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<PopupEnum>>[
+              const PopupMenuItem(
+                    child: Text("About"),
+                    value: PopupEnum.About,
+                  )
+            ],
+            onSelected: (PopupEnum item){
+              if (item == PopupEnum.About){
+                Navigator.pushNamed(context, "/about");
+              }
+            },
+          )
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -302,3 +316,5 @@ class _MyHomePageState extends State<MyHomePage> {
     saveCurrentItems().then(null);
   }
 }
+
+enum PopupEnum {About}
