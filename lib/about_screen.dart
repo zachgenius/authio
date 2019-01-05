@@ -58,7 +58,7 @@ class _AboutScreen extends State<AboutScreen>{
             ),
             Divider(),
             ListTile(
-              title: Text("Contact Us"),
+              title: Text("Email Us"),
               onTap: (){
                 const url = 'mailto:authio@wildfox.pro';
                 openUrl(url);
