@@ -66,6 +66,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Timer _countdownTimer;
 
+  var emptyView = Expanded(
+    flex: 100,
+    child:Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Padding(padding: EdgeInsets.only(left: 80)),
+            Text("Updates every 30s👆", style: TextStyle(fontSize: 18),),
+            Spacer(flex: 1,),
+            Text("Menu👆", style: TextStyle(fontSize: 18)),
+            Padding(padding: EdgeInsets.only(right: 15),)
+          ],
+        ),
+        Spacer(flex: 1,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Padding(padding: EdgeInsets.only(bottom: 20, right: 80), child: Text("Add Accounts👉", style: TextStyle(fontSize: 18)),)
+          ],
+        )
+      ],
+    )
+  );
+
   void refreshList(){
     setState(() {
       _2faItems.forEach((f) => f.generateOutputNumber());
@@ -264,36 +288,39 @@ class _MyHomePageState extends State<MyHomePage> {
           LinearProgressIndicator(
             value: _currentProgress,
           ),
-          new Expanded(
-              child: ListView.separated(
-                itemCount: _2faItems.length, //_2faItems.length,
-                separatorBuilder: (BuildContext context, int index) => Divider(),
-                itemBuilder: (BuildContext context, int index) {
-                  var item = _2faItems[index];
-                  return Dismissible(
-                    direction: DismissDirection.endToStart,
-                    key: Key(item.secret),
-                    onDismissed: (direction) {
-                      // Remove the item from our data source.
-                      removeItem(context,index);
+          _2faItems.length == 0 ? emptyView : Container(),
+          Expanded(
+            flex: 1,
+            child: ListView.separated(
+                      itemCount: _2faItems.length, //_2faItems.length,
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      itemBuilder: (BuildContext context, int index) {
+                        var item = _2faItems[index];
+                        return Dismissible(
+                            direction: DismissDirection.endToStart,
+                            key: Key(item.secret),
+                            onDismissed: (direction) {
+                              // Remove the item from our data source.
+                              removeItem(context,index);
 
-                    },
-                    // Show a red background as the item is swiped away
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      color: Colors.red,
-                      child: Icon(Icons.delete, color: Colors.white),
-                      padding: EdgeInsets.only(right: 15),
+                            },
+                            // Show a red background as the item is swiped away
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              color: Colors.red,
+                              child: Icon(Icons.delete, color: Colors.white),
+                              padding: EdgeInsets.only(right: 15),
 
-                    ),
-                    child: ListTile(
-                      title: Text('${item.outputNumber}'),
-                      subtitle: Text(item.label),
-                      trailing: Text(item.issuer),
-                    )
-                  );
-                }
-          ))
+                            ),
+                            child: ListTile(
+                              title: Text('${item.outputNumber}'),
+                              subtitle: Text(item.label),
+                              trailing: Text(item.issuer),
+                            )
+                        );
+                      }
+                  )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -340,12 +367,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text("Delete"),
               textColor: Colors.red,
               onPressed: (){
-                Navigator.pop(bCtx);
                 // Then show a snackbar!
                 Scaffold.of(ctx)
                     .showSnackBar(SnackBar(content: Text("Deleted")));
 
                 saveCurrentItems();
+                Navigator.pop(context);
               },
             )
           ],
