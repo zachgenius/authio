@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       initialRoute: "/",
+      debugShowCheckedModeBanner : false,
       routes: {
         "/" : (context) => MyHomePage(title: 'Authio'),
         "/settings" : (context) => SettingScreen(),
